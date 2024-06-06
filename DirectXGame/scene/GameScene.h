@@ -8,6 +8,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Player.h"
+#include "MapChipField.h"
 
 /// <summary>
 /// ゲームシーン
@@ -53,6 +54,7 @@ private: // メンバ変数
 
 	Player* player_ = nullptr;
 
+	MapChipField* mapChipField_;
 
 	/// <summary>
 	/// ゲームシーン用

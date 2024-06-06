@@ -7,6 +7,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete player_;
+	delete mapChipField_;
 }
 
 void GameScene::Initialize() {
@@ -25,7 +26,8 @@ void GameScene::Initialize() {
 
 	player_ -> Initialize(model_,textureHndle_,&viewProjection_);
 
-
+	mapChipField_ =new MapChipField;
+	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
 
 }
 
