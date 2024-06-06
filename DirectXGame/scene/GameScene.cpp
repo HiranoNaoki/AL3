@@ -23,7 +23,7 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 
-	player_ -> Initialize(model_,textureHndle_,&viewProjection_);
+	player_ -> Initialize(model_,&viewProjection_,player);
 
 
 

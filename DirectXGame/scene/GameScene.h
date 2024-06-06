@@ -41,17 +41,7 @@ public: // メンバ関数
 	void Draw();
 
 private: // メンバ変数
-	DirectXCommon* dxCommon_ = nullptr;
-	Input* input_ = nullptr;
-	Audio* audio_ = nullptr;
-
-	uint32_t textureHndle_ =0;
-
-	Model* model_ = nullptr;
-
-	ViewProjection viewProjection_;
-
-	Player* player_ = nullptr;
+	
 
 
 	/// <summary>
