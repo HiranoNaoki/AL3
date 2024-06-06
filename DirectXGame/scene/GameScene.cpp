@@ -15,6 +15,8 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 
 	delete debugCamara_;
+
+	delete modelskydome_;
 }
 
 void GameScene::Initialize() {
@@ -63,6 +65,9 @@ void GameScene::Initialize() {
 			}
 	}
 	debugCamara_ = new DebugCamera(1280,720);
+
+	modelskydome_ = Model::CreateFromOBJ("sphere",true);
+
 }
 
 void GameScene::Update() {
