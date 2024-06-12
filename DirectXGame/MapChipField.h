@@ -28,12 +28,15 @@ class MapChipField {
 
 	
 
-	MapChipType GetMapChipTypeByIndex(uint32_t xIndex,uint32_t yIndex);
+	
 
-	Vector3 GetMapChipPositionByIndex(uint32_t xIndex,uint32_t yIndex);
-
+	
 	 
 	public:
+		Vector3 GetMapChipPositionByIndex(uint32_t xIndex,uint32_t yIndex);
+
+
+		MapChipType GetMapChipTypeByIndex(uint32_t xIndex,uint32_t yIndex);
 		
 
 		const uint32_t GetNumBlockVirtical(){return kNumBlockVirtical;}

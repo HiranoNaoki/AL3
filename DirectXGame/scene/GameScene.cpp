@@ -7,11 +7,21 @@ void GameScene::GenerateBlocks() {
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
 	//
-	worldTransformBlocks_.rerize();
-	for (uint32_t i = 0; i < ; ++i) {
-		worTransformBlocks_[i].resize();
+	worldTransformBlocks_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		worldTransformBlocks_[i].resize(numBlockHorizontal);
 	}
 
+	for (uint32_t i = 0; i < numBlockVirtical; i++) {
+for (uint32_t j = 0; j < numBlockHorizontal; j++) {
+if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+WorldTransform* worldTransform = new WorldTransform();
+worldTransform->Initialize();
+worldTransformBlocks_[i][j] = worldTransform;
+worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+}
+}
+}
 
 }
 
@@ -50,7 +60,42 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-player_->Update();
+
+//ブロックの更新
+	for (std::vector<WorldTransform*>& worldtransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldtransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			// アフィン変換行列の作成
+			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+			// 定数バッファに転送する
+			worldTransformBlock->TransferMatrix();
+		}
+	}
+
+	player_->Update();
+
+	
+	//デバッグカメラの更新
+	debugCamera_->Update();
+
+	#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+#endif  DEBUG
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		//ビュープロジェクション行列の転送
+		viewProjection_.TransferMatrix();
+	}else
+	{
+	       //ビュープロジェクション行列の更新と転送
+		viewProjection_.UpdateMatrix();
+	}
+
 }
 
 void GameScene::Draw() {

@@ -46,7 +46,13 @@ public: // メンバ関数
 
 	void GenerateBlocks();
 
+std::vector<std::vector<WorldTransform*>>  worldTransformBlocks_;
+
 private: // メンバ変数
+
+
+
+
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
