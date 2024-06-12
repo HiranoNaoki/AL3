@@ -28,7 +28,6 @@ class MapChipField {
 
 	
 
-
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex,uint32_t yIndex);
 
 	Vector3 GetMapChipPositionByIndex(uint32_t xIndex,uint32_t yIndex);
@@ -36,6 +35,10 @@ class MapChipField {
 	 
 	public:
 		
+
+		const uint32_t GetNumBlockVirtical(){return kNumBlockVirtical;}
+
+	const uint32_t GetNumBlockHorizontal() { return kNumBlockHorizontal; }
 
 	void ResetMapChipDate();
 

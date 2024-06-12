@@ -1,6 +1,19 @@
+#include<cassert>
 #include "GameScene.h"
 #include "TextureManager.h"
-#include <cassert>
+
+void GameScene::GenerateBlocks() {
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	//
+	worldTransformBlocks_.rerize();
+	for (uint32_t i = 0; i < ; ++i) {
+		worTransformBlocks_[i].resize();
+	}
+
+
+}
 
 GameScene::GameScene() {
 	
@@ -34,9 +47,7 @@ void GameScene::Initialize() {
 	
 }
 
-void GameScene::GenerateBlocks() {
-	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
-}
+
 
 void GameScene::Update() {
 player_->Update();
