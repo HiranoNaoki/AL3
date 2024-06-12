@@ -2,7 +2,9 @@
 #include "TextureManager.h"
 #include <cassert>
 
-GameScene::GameScene() {}
+GameScene::GameScene() {
+	
+}
 
 GameScene::~GameScene() {
 	delete model_;
@@ -29,6 +31,11 @@ void GameScene::Initialize() {
 	mapChipField_ =new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
 
+	
+}
+
+void GameScene::GenerateBlocks() {
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 }
 
 void GameScene::Update() {

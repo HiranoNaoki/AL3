@@ -1,9 +1,10 @@
 #include<map>
-#include"MapChipField.h"
+
 #include <string>
 #include<fstream>
 #include<sstream>
 #include<assert.h>
+#include"MapChipField.h"
 
 namespace {
 	std::map<std::string, MapChipType> mapChipTable = {
@@ -24,6 +25,8 @@ void MapChipField::ResetMapChipDate() {
 		mapChipDateLine.resize(kNumBlockHorizontal);
 	}
 }
+
+
   void MapChipField::LoadMapChipCsv(const std::string& filePath){
 	ResetMapChipDate();
 

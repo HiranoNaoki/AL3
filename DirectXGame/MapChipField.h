@@ -26,8 +26,6 @@ class MapChipField {
 
 	MapChipDate mapChipDate_;
 
-	void ResetMapChipDate();
-
 	
 
 
@@ -36,11 +34,13 @@ class MapChipField {
 	Vector3 GetMapChipPositionByIndex(uint32_t xIndex,uint32_t yIndex);
 
 	 
-
+	public:
 		
 
-	public:
+	void ResetMapChipDate();
 
-		void LoadMapChipCsv(const std::string& filePath);
+	void LoadMapChipCsv(const std::string& filePath);
+
+	
 };
 
