@@ -1,7 +1,10 @@
-#include<cassert>
+
+
 #include "GameScene.h"
 #include "TextureManager.h"
-#include "myMath.h"
+#include<cassert>
+
+
 
 void GameScene::GenerateBlocks() {
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
@@ -64,17 +67,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-//ブロックの更新
-	for (std::vector<WorldTransform*>& worldtransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldtransformBlockLine) {
-			if (!worldTransformBlock)
-				continue;
-			// アフィン変換行列の作成
-			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
-			// 定数バッファに転送する
-			worldTransformBlock->TransferMatrix();
-		}
-	}
+
 
 	player_->Update();
 
