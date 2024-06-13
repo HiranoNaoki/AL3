@@ -1,6 +1,7 @@
 #include<cassert>
 #include "GameScene.h"
 #include "TextureManager.h"
+#include "myMath.h"
 
 void GameScene::GenerateBlocks() {
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
@@ -33,6 +34,7 @@ GameScene::~GameScene() {
 	delete model_;
 	delete player_;
 	delete mapChipField_;
+	delete debugCamera_;
 }
 
 void GameScene::Initialize() {
@@ -54,6 +56,7 @@ void GameScene::Initialize() {
 	mapChipField_ =new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
 
+	debugCamera_ = new DebugCamera(1280,720);
 	
 }
 
