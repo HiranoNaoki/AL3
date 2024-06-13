@@ -72,6 +72,8 @@ private: // メンバ変数
 
 	MapChipField* mapChipField_;
 
+	uint32_t texturehandle_ = 0;
+
 	bool isDebugCameraActive_ = false;
 
 	DebugCamera* debugCamera_ = nullptr;

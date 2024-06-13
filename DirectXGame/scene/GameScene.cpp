@@ -23,7 +23,7 @@ WorldTransform* worldTransform = new WorldTransform();
 worldTransform->Initialize();
 worldTransformBlocks_[i][j] = worldTransform;
 worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
-}
+    }
 }
 }
 
@@ -67,9 +67,45 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (isDebugCameraActive_ == true)
+			isDebugCameraActive_ = false;
+		else
+			isDebugCameraActive_ = true;
+	}
 
 
-	player_->Update();
+	if (isDebugCameraActive_) {
+		
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		
+		viewProjection_.TransferMatrix();
+	} else {
+		
+		viewProjection_.UpdateMatrix();
+	}
+
+
+
+
+
+
+player_->Update();
+
+
+	for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
+			if (!worldTransformBlockYoko)
+				continue;
+
+			// アフィン変換行列の作成
+			worldTransformBlockYoko->UpdateMatrix();
+		}
+	}
+
+
 
 	
 	//デバッグカメラの更新
@@ -121,6 +157,15 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	/// 自キャラ
+	/// 
+	/// 
+	for (std::vector<WorldTransform*>& worldtransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldtransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			model_->Draw(*worldTransformBlock, viewProjection_, texturehandle_);
+		}
+	}
 	player_->Draw();
 
 	// 3Dオブジェクト描画後処理
