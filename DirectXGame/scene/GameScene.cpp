@@ -37,6 +37,13 @@ GameScene::~GameScene() {
 	delete model_;
 	delete player_;
 	delete mapChipField_;
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			delete worldTransformBlock;
+		}
+	}
+
+	worldTransformBlocks_.clear();
 	delete debugCamera_;
 }
 
@@ -48,7 +55,12 @@ void GameScene::Initialize() {
 
 	textureHndle_ = TextureManager::Load("./Resources/mario.png");
 
+
+
 	model_ = Model::Create();
+	modelBlock_ = Model::Create();
+
+	worldTransform_.Initialize();
 
 	viewProjection_.Initialize();
 
@@ -58,6 +70,7 @@ void GameScene::Initialize() {
 
 	mapChipField_ =new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
+	GenerateBlocks();
 
 	debugCamera_ = new DebugCamera(1280,720);
 	
@@ -86,28 +99,6 @@ void GameScene::Update() {
 		
 		viewProjection_.UpdateMatrix();
 	}
-
-
-
-
-
-
-player_->Update();
-
-
-	for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
-			if (!worldTransformBlockYoko)
-				continue;
-
-			// アフィン変換行列の作成
-			worldTransformBlockYoko->UpdateMatrix();
-		}
-	}
-
-
-
-	
 	//デバッグカメラの更新
 	debugCamera_->Update();
 
@@ -126,6 +117,20 @@ player_->Update();
 	{
 	       //ビュープロジェクション行列の更新と転送
 		viewProjection_.UpdateMatrix();
+	}
+
+
+	player_->Update();
+
+
+	for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
+			if (!worldTransformBlockYoko)
+				continue;
+
+			// アフィン変換行列の作成
+			worldTransformBlockYoko->UpdateMatrix();
+		}
 	}
 
 }
@@ -159,11 +164,12 @@ void GameScene::Draw() {
 	/// 自キャラ
 	/// 
 	/// 
-	for (std::vector<WorldTransform*>& worldtransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldtransformBlockLine) {
-			if (!worldTransformBlock)
+	for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
+			if (!worldTransformBlockYoko)
 				continue;
-			model_->Draw(*worldTransformBlock, viewProjection_, texturehandle_);
+
+			modelBlock_->Draw(*worldTransformBlockYoko, viewProjection_);
 		}
 	}
 	player_->Draw();

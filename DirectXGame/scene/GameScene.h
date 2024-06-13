@@ -65,14 +65,17 @@ private: // メンバ変数
 	uint32_t textureHndle_ =0;
 
 	Model* model_ = nullptr;
+	Model* modelBlock_ = nullptr;
 
+	WorldTransform worldTransform_;
+	
 	ViewProjection viewProjection_;
 
 	Player* player_ = nullptr;
 
 	MapChipField* mapChipField_;
 
-	uint32_t texturehandle_ = 0;
+
 
 	bool isDebugCameraActive_ = false;
 
