@@ -53,7 +53,7 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	textureHndle_ = TextureManager::Load("./Resources/mario.png");
+	textureHndle_ = TextureManager::Load("./Resources/player.png");
 
 
 
@@ -66,11 +66,14 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 
-	player_ -> Initialize(model_,textureHndle_,&viewProjection_);
-
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1,18);
+	
 	mapChipField_ =new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
 	GenerateBlocks();
+
+	player_ -> Initialize(model_,textureHndle_,&viewProjection_,playerPosition);
+
 
 	debugCamera_ = new DebugCamera(1280,720);
 	
