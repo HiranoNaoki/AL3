@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "MapChipField.h"
 #include "DebugCamera.h"
+#include "CameraController.h"
 
 
 
@@ -80,6 +81,8 @@ private: // メンバ変数
 	bool isDebugCameraActive_ = false;
 
 	DebugCamera* debugCamera_ = nullptr;
+
+	CameraController* cameracontroller_ = nullptr;
 	
 
 	/// <summary>

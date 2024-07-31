@@ -76,12 +76,29 @@ void GameScene::Initialize() {
 
 
 	debugCamera_ = new DebugCamera(1280,720);
+
+	//カメラコントローラの生成
+	cameracontroller_ = new CameraController();
+	//カメラコントローラの初期化
+	cameracontroller_->Intialize();
+	//追従対象をセット
+	cameracontroller_->SetTarget(player_);
+	//リセット
+	cameracontroller_->Reset();
+
+	CameraController::Rect cameraArea = {12.0f,100-12.0f,6.0f,6.0f};
+
+	cameracontroller_->SetMovableArea(cameraArea);
 	
 }
 
 
 
 void GameScene::Update() {
+
+	player_->Update();
+
+	cameracontroller_->Update();
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 		if (isDebugCameraActive_ == true)
@@ -91,6 +108,12 @@ void GameScene::Update() {
 	}
 
 
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+#endif  DEBUG
+
 	if (isDebugCameraActive_) {
 		
 		debugCamera_->Update();
@@ -99,31 +122,14 @@ void GameScene::Update() {
 		
 		viewProjection_.TransferMatrix();
 	} else {
-		
-		viewProjection_.UpdateMatrix();
+		viewProjection_.matView = cameracontroller_->GetViewProjection().matView;
+		viewProjection_.matProjection = cameracontroller_->GetViewProjection().matProjection;
+		viewProjection_.TransferMatrix();
+	
+//		viewProjection_.UpdateMatrix();
 	}
 	//デバッグカメラの更新
 	debugCamera_->Update();
-
-	#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_0)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-#endif  DEBUG
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-		//ビュープロジェクション行列の転送
-		viewProjection_.TransferMatrix();
-	}else
-	{
-	       //ビュープロジェクション行列の更新と転送
-		viewProjection_.UpdateMatrix();
-	}
-
-
-	player_->Update();
 
 
 	for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
@@ -135,6 +141,9 @@ void GameScene::Update() {
 			worldTransformBlockYoko->UpdateMatrix();
 		}
 	}
+
+
+	
 
 }
 
