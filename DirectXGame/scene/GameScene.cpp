@@ -58,7 +58,7 @@ void GameScene::Initialize() {
 
 
 	model_ = Model::Create();
-	modelBlock_ = Model::Create();
+	modelBlock_ = Model::CreateFromOBJ("block", true);
 
 	worldTransform_.Initialize();
 
@@ -74,6 +74,7 @@ void GameScene::Initialize() {
 
 	player_ -> Initialize(model_,textureHndle_,&viewProjection_,playerPosition);
 
+	player_->SetMapChipField(mapChipField_);
 
 	debugCamera_ = new DebugCamera(1280,720);
 

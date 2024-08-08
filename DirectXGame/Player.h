@@ -2,6 +2,7 @@
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 
+class MapChipField;
 
 class Player{
 
@@ -23,6 +24,38 @@ void Draw();
 const WorldTransform& GetWorldTransform() const {return worldTransform_;}
 
 const Vector3& GetVelocity() const {return velocity_;}
+
+static inline const float kWidth = 0.8f;
+static inline const float kHeight = 0.8f;
+
+void SetMapChipField(MapChipField* mapChipField){mapChipField_ = mapChipField;}
+
+struct CollisionMapInfo {
+		bool ceiling = false; 
+		bool landing = false; 
+		bool hitWall = false; 
+		Vector3 move;
+	};
+
+
+void ChecMapColision(CollisionMapInfo& info);
+
+void ChecMapCollisionUp(CollisionMapInfo& info);
+
+enum Corner {
+		kRightBottom, 
+		kLeftBottom,  
+		kRightTop,    
+		kLeftTop,     
+
+		kNumCorner    
+	};
+
+void CheckMapMove(const CollisionMapInfo& info);
+
+
+void CheckMapCelling(const CollisionMapInfo& info);
+
 
 
 private:
@@ -62,4 +95,13 @@ static inline const float kGravityAcceleration = 0.09f;
 static inline const float kLmitFallSpeed = 1.0f;
 
 static inline const float kJumpAccleration =1.2f;
+
+MapChipField* mapChipField_ = nullptr;
+
+
+
+Vector3 CornerPosition(const Vector3& center, Corner corner);
+
+static inline const float kBlank = 1.0f;
+
 };

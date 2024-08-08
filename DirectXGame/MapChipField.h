@@ -47,6 +47,22 @@ class MapChipField {
 
 	void LoadMapChipCsv(const std::string& filePath);
 
+	struct IndexSet {
+		uint32_t xIndex;
+		uint32_t yIndex;
+	};
+
+	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
 	
+
+	struct Rect {
+		float left;
+		float right;
+		float bottom;
+		float top;
+	};
+
+
+	Rect GetRectByIndex(uint32_t xIndex,uint32_t yIndex);
 };
 

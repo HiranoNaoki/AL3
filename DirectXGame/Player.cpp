@@ -4,24 +4,16 @@
 #include<numbers>
 #include<Input.h>
 #include<algorithm>
+#include <MapChipField.h>
+#include"MathUtilityForText.h"
+#include <DebugText.h>
 
-float Lerp(float x1,float x2,float t){return (1.0f - t) * x1 + t * x2;}
 
-float EaseInOut(float x1, float x2, float t) {
-	float x;
-    float easedT = -(std::cosf(std::numbers::pi_v<float> *t)- 1.0f)/2.0f;
-   
-	
-	x = (1.0f - easedT) * x1 + easedT*x2;
-	
-	
-	return x;
 
-}
 
-Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
-    return Vector3(Lerp(v1.x,v2.x,t),Lerp(v1.y,v2.y,t),Lerp(v1.z,v2.z,t));
-}
+
+
+
 
 Player::Player(){};
 
@@ -40,15 +32,9 @@ void Player::Initialize(Model* model,uint32_t textureHandle,ViewProjection* view
 	model_ = Model::CreateFromOBJ("player",true);
 }
 
-void Player::Draw() {
-	model_->Draw(worldTransform_,*viewprojection_,textureHndle_);
-}
 
 void Player::Update() {
-	worldTransform_.TransferMatrix();
-
-	
-
+	//1
 	//moov
 	if(onGround_){
 		
@@ -115,8 +101,8 @@ void Player::Update() {
 	}else{
 		velocity_.y += -kGravityAcceleration;
 
-
 		velocity_.y = std::max(velocity_.y,-kLmitFallSpeed);
+
 		}
 
 
@@ -125,7 +111,36 @@ void Player::Update() {
 	worldTransform_.translation_.x +=velocity_.x;
 	worldTransform_.translation_.y +=velocity_.y;
 
-	worldTransform_.UpdateMatrix();
+	
+
+	//2
+	CollisionMapInfo collisionMapInfo;
+
+	collisionMapInfo.move = velocity_;
+
+	ChecMapColision(collisionMapInfo);
+
+	
+
+
+
+	//3
+	CheckMapMove(collisionMapInfo);
+	//4
+	CheckMapCelling(collisionMapInfo);
+	//5
+
+	//6
+
+	//7
+
+	//8
+
+
+
+
+
+	
 
 	   bool landing = false;
 	if (velocity_.y < 0.0f) {
@@ -154,6 +169,90 @@ void Player::Update() {
 		}
 	}
 	
+	worldTransform_.TransferMatrix();
+
 	
+
 	
+	worldTransform_.UpdateMatrix();
+	
+}
+void Player::Draw() {
+	model_->Draw(worldTransform_,*viewprojection_,textureHndle_);
+}
+
+
+void Player::ChecMapColision(CollisionMapInfo& info) { 
+	ChecMapCollisionUp(info);
+	//ChecMapCollisionDown(info);
+	//ChecMapCollisionRight(info);
+	//ChecMapCollisionLeft(info);
+}
+
+void Player::ChecMapCollisionUp(CollisionMapInfo& info) {
+	//
+	std::array<Vector3, kNumCorner> positionNew;
+
+	for (uint32_t i = 0; i < positionNew.size(); ++i) {
+		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
+	}
+	//
+	if (info.move.y <= 0) {
+		return;
+	}
+
+	MapChipType mapChipType;
+
+	
+	bool hit = false;
+	
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock) {
+		hit = true;
+	}
+	
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock) {
+		hit = true;
+	}
+	if (hit) {
+		
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_+ Vector3(0, +kHeight / 2.0f, 0));
+		
+		
+		
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
+		
+		info.ceiling = true;
+	}
+}
+
+void Player::CheckMapMove(const CollisionMapInfo& info) {
+	//
+	worldTransform_.translation_ += info.move;
+}
+
+
+void Player::CheckMapCelling(const CollisionMapInfo& info) {
+	//
+	if (info.ceiling) {
+		DebugText::GetInstance()->ConsolePrintf("hit celing\n");
+		velocity_.y = 0;
+	}
+}
+
+Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
+	
+	Vector3 offsetTable[kNumCorner] = {
+	    {+kWidth / 2.0f, -kHeight / 2.0f, 0}, //  kRightBottom
+	    {-kWidth / 2.0f, -kHeight / 2.0f, 0}, //  kLeftBottom
+	    {+kWidth / 2.0f, +kHeight / 2.0f, 0}, //  kRightTop
+	    {-kWidth / 2.0f, +kHeight / 2.0f, 0}  //  kLeftTop
+	};
+
+	return center + offsetTable[static_cast<uint32_t>(corner)];
 }
