@@ -52,7 +52,10 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 	delete debugCamera_;
 	delete modelEnemy_;
+
+	delete modelDeathParticles;
 }
+
 
 void GameScene::Initialize() {
 
@@ -98,7 +101,12 @@ void GameScene::Initialize() {
   //  enemy_->Initialize(modelEnemy_, &viewProjection_, enemyfPosition);
 	//enemy_->SetMapChipField(mapChipField_);
 
-	
+
+	modelDeathParticles = Model::CreateFromOBJ("deathParticle", true);
+
+	deathParticles_ = new DeathParticles;
+	deathParticles_->Initialize(modelDeathParticles, &viewProjection_, playerPosition);
+
 
 	mapChipField_ =new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
@@ -146,6 +154,9 @@ void GameScene::Update() {
 		enemy->Update();
 	}
 
+	if (deathParticles_) {
+		deathParticles_->Update();
+	}
 
 	CheckAllCollisions();
 
@@ -230,6 +241,10 @@ void GameScene::Draw() {
 	//enemy_->Draw();
 	 for (Enemy* enemy : enemies_) {
 		enemy->Draw();
+	}
+
+	 if (deathParticles_) {
+		deathParticles_->Draw();
 	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

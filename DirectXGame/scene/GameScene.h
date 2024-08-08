@@ -12,6 +12,7 @@
 #include "DebugCamera.h"
 #include "CameraController.h"
 #include "Enemy.h"
+#include "DeathParticles.h"
 
 
 
@@ -72,6 +73,7 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 	Model* modelBlock_ = nullptr;
 	Model* modelEnemy_ = nullptr;
+	Model* modelDeathParticles = nullptr;
 
 	WorldTransform worldTransform_;
 	
@@ -92,5 +94,8 @@ private: // メンバ変数
 
 	//Enemy* enemy_ = nullptr;
 	std::list<Enemy*> enemies_;
+
+	DeathParticles* deathParticles_ = nullptr;
+
 
 };
