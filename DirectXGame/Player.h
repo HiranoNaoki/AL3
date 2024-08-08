@@ -30,7 +30,8 @@ public:
 		kNumCorner 
 	};
 
-	
+	Vector3 GetworldPosition();
+
 	void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position);
 
 	
@@ -45,11 +46,13 @@ public:
 
 	const Vector3& GetVelocity() const { return velocity_; }
 
-	Vector3 GetworldPosition();
+	
 
 	AABB GetAABB();
 
 	void OnCollision(const Enemy* enemy);
+
+	bool IsDead() const { return isDead_; }
 
 	private:
 
@@ -87,7 +90,7 @@ public:
 	
 	Vector3 velocity_ = {};
 
-
+	bool isDead_ =false;
 
 	bool onGround_ = true;
 

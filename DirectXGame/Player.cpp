@@ -449,8 +449,7 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 
 void Player::OnCollision(const Enemy* enemy) { 
 	(void)enemy;
-	
-	velocity_ += Vector3(0, 0.5f, 0);
+	isDead_ = true;
 	}
 
 

@@ -50,7 +50,7 @@ public: // メンバ関数
 	void Draw();
 
 
-
+	void ChangePhase();
 
 	void GenerateBlocks();
 
@@ -58,6 +58,8 @@ public: // メンバ関数
 	void CheckAllCollisions();
 
 std::vector<std::vector<WorldTransform*>>  worldTransformBlocks_;
+
+bool IsFinished() const { return finished_; }
 
 private: // メンバ変数
 
@@ -95,7 +97,15 @@ private: // メンバ変数
 	//Enemy* enemy_ = nullptr;
 	std::list<Enemy*> enemies_;
 
+
 	DeathParticles* deathParticles_ = nullptr;
 
+	enum class Phase {
+		kPlay,  
+		kDeath, 
+	};
 
+	Phase phase_;
+
+	bool finished_ = false;
 };

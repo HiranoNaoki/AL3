@@ -22,6 +22,8 @@ public:
 	
 	void Draw();
 
+	bool IsFinished() const { return finished_; }
+
 private:
 
 	ViewProjection* viewProjection_ = nullptr;
@@ -48,5 +50,5 @@ private:
 	
 	Vector4 color_;
 
-
+	bool finished_ = false;
 };
