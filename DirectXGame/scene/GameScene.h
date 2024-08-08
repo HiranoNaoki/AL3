@@ -53,6 +53,9 @@ public: // メンバ関数
 
 	void GenerateBlocks();
 
+
+	void CheckAllCollisions();
+
 std::vector<std::vector<WorldTransform*>>  worldTransformBlocks_;
 
 private: // メンバ変数
@@ -87,5 +90,7 @@ private: // メンバ変数
 	CameraController* cameracontroller_ = nullptr;
 	
 
-	Enemy* enemy_ = nullptr;
+	//Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
+
 };

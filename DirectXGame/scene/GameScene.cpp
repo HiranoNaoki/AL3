@@ -43,7 +43,11 @@ GameScene::~GameScene() {
 		}
 	}
 
-	delete enemy_;
+	//delete enemy_;
+	for (Enemy* newEnemy : enemies_) {
+		delete newEnemy;
+	}
+	enemies_.clear();
 
 	worldTransformBlocks_.clear();
 	delete debugCamera_;
@@ -68,7 +72,17 @@ void GameScene::Initialize() {
 
 
 
-	enemy_ = new Enemy();
+	//enemy_ = new Enemy();
+	for (int32_t i = 0; i < 2; ++i) {
+		modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
+		newEnemy->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
+
+		enemies_.push_back(newEnemy);
+	}
+
+
 	modelEnemy_ = Model::CreateFromOBJ("enemy",true);
 
 	worldTransform_.Initialize();
@@ -81,8 +95,8 @@ void GameScene::Initialize() {
 	
 	Vector3 enemyfPosition = mapChipField_->GetMapChipPositionByIndex(15, 18);
 
-    enemy_->Initialize(modelEnemy_, &viewProjection_, enemyfPosition);
-	enemy_->SetMapChipField(mapChipField_);
+  //  enemy_->Initialize(modelEnemy_, &viewProjection_, enemyfPosition);
+	//enemy_->SetMapChipField(mapChipField_);
 
 	
 
@@ -126,7 +140,14 @@ void GameScene::Update() {
 			isDebugCameraActive_ = true;
 	}
 
-	enemy_->Update();
+	//enemy_->Update();
+
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
+
+	CheckAllCollisions();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_0)) {
@@ -206,7 +227,10 @@ void GameScene::Draw() {
 	}
 	player_->Draw();
 
-	enemy_->Draw();
+	//enemy_->Draw();
+	 for (Enemy* enemy : enemies_) {
+		enemy->Draw();
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -223,4 +247,26 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollisions() {
+	//判定対象1と2の座標
+	AABB aabb1, aabb2;
+
+	//自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	//自キャラと敵弾すべての当たり判定
+	for (Enemy* enemy : enemies_) {
+		//敵弾の座標
+		aabb2 = enemy->GetAABB();
+
+		//AABB同士の交差判定
+		if (IsCollision(aabb1, aabb2)) {
+			//自キャラの衝突時コールバックを呼び起こす
+			player_->OnCollision(enemy);
+			//敵弾の衝突時コールバックを呼び起こす
+			enemy->OnCollision(player_);
+		}
+	}
 }

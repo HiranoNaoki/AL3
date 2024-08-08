@@ -6,8 +6,12 @@
 #include <algorithm>
 #include <numbers>
 #include <WorldTransform.h>
+#include<AABB.h>
+
 
 class MapChipField;
+
+class Player;
 
 class Enemy {
 
@@ -19,6 +23,14 @@ class Enemy {
 	void Draw();
 
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+	
+	Vector3 GetworldPosition();
+
+
+	AABB GetAABB();
+
+	void OnCollision(const Player* player);
+
 
 
 private:
@@ -44,4 +56,7 @@ private:
 	
 	float walkTimer_ = 0.0f;
 
+
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
 };

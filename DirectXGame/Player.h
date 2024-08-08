@@ -5,9 +5,11 @@
 #include <Input.h>
 #include <MathUtilityForText.h>
 #include <algorithm>
+#include <AABB.h>
 
 class MapChipField;
 
+class Enemy;
 
 class Player{
 public:
@@ -42,6 +44,12 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	const Vector3& GetVelocity() const { return velocity_; }
+
+	Vector3 GetworldPosition();
+
+	AABB GetAABB();
+
+	void OnCollision(const Enemy* enemy);
 
 	private:
 

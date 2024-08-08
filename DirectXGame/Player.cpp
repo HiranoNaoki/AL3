@@ -55,6 +55,29 @@ void Player::Draw() {
 	model_->Draw(worldTransform_, *viewProjection_);
 }
 
+
+Vector3 Player::GetworldPosition() {
+	
+	Vector3 worldPos;
+	
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
+AABB Player::GetAABB() { 
+	Vector3 worldPos = GetworldPosition();
+
+	AABB aabb;
+
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
 void Player::inputMove() {
 	
 	if (onGround_) {
@@ -423,5 +446,11 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 
 	    return center + offsetTable[static_cast<uint32_t>(corner)];
     }
+
+void Player::OnCollision(const Enemy* enemy) { 
+	(void)enemy;
+	
+	velocity_ += Vector3(0, 0.5f, 0);
+	}
 
 
