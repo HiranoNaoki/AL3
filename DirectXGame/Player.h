@@ -41,6 +41,11 @@ struct CollisionMapInfo {
 void ChecMapColision(CollisionMapInfo& info);
 
 void ChecMapCollisionUp(CollisionMapInfo& info);
+void ChecMapCollisionDown(CollisionMapInfo& info);
+void ChecMapCollisionRight(CollisionMapInfo& info);
+void ChecMapCollisionLeft(CollisionMapInfo& info);
+
+
 
 enum Corner {
 		kRightBottom, 
@@ -56,7 +61,9 @@ void CheckMapMove(const CollisionMapInfo& info);
 
 void CheckMapCelling(const CollisionMapInfo& info);
 
+void UpdateOnGround(const CollisionMapInfo& info);
 
+void CheckMapHItWall(const CollisionMapInfo& info);
 
 private:
 WorldTransform  worldTransform_;
@@ -103,5 +110,10 @@ MapChipField* mapChipField_ = nullptr;
 Vector3 CornerPosition(const Vector3& center, Corner corner);
 
 static inline const float kBlank = 1.0f;
+
+static inline const float kAttenuationLanding = 0.5;
+static inline const float kGroundSearchHeight = 0.06f;
+
+static inline const float kAttenuationWall = 0.2f;
 
 };
