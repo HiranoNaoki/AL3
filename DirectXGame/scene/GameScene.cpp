@@ -1,5 +1,5 @@
 
-
+#include "WorldTransform.h"
 #include "GameScene.h"
 #include "TextureManager.h"
 #include<cassert>
@@ -43,8 +43,11 @@ GameScene::~GameScene() {
 		}
 	}
 
+	delete enemy_;
+
 	worldTransformBlocks_.clear();
 	delete debugCamera_;
+	delete modelEnemy_;
 }
 
 void GameScene::Initialize() {
@@ -60,6 +63,14 @@ void GameScene::Initialize() {
 	model_ = Model::CreateFromOBJ("player",true);
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 
+
+	
+
+
+
+	enemy_ = new Enemy();
+	modelEnemy_ = Model::CreateFromOBJ("enemy",true);
+
 	worldTransform_.Initialize();
 
 	viewProjection_.Initialize();
@@ -68,6 +79,13 @@ void GameScene::Initialize() {
 
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1,18);
 	
+	Vector3 enemyfPosition = mapChipField_->GetMapChipPositionByIndex(15, 18);
+
+    enemy_->Initialize(modelEnemy_, &viewProjection_, enemyfPosition);
+	enemy_->SetMapChipField(mapChipField_);
+
+	
+
 	mapChipField_ =new MapChipField;
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
 	GenerateBlocks();
@@ -108,6 +126,7 @@ void GameScene::Update() {
 			isDebugCameraActive_ = true;
 	}
 
+	enemy_->Update();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_0)) {
@@ -187,6 +206,7 @@ void GameScene::Draw() {
 	}
 	player_->Draw();
 
+	enemy_->Draw();
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion

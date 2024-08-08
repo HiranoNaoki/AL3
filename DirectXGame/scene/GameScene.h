@@ -11,6 +11,7 @@
 #include "MapChipField.h"
 #include "DebugCamera.h"
 #include "CameraController.h"
+#include "Enemy.h"
 
 
 
@@ -67,6 +68,7 @@ private: // メンバ変数
 
 	Model* model_ = nullptr;
 	Model* modelBlock_ = nullptr;
+	Model* modelEnemy_ = nullptr;
 
 	WorldTransform worldTransform_;
 	
@@ -85,7 +87,5 @@ private: // メンバ変数
 	CameraController* cameracontroller_ = nullptr;
 	
 
-	/// <summary>
-	/// ゲームシーン用
-	/// </summary>
+	Enemy* enemy_ = nullptr;
 };
