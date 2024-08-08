@@ -57,7 +57,7 @@ void GameScene::Initialize() {
 
 
 
-	model_ = Model::Create();
+	model_ = Model::CreateFromOBJ("player",true);
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 
 	worldTransform_.Initialize();
@@ -72,7 +72,7 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCsv("./Resources/map.csv");
 	GenerateBlocks();
 
-	player_ -> Initialize(model_,textureHndle_,&viewProjection_,playerPosition);
+	player_ -> Initialize(model_,&viewProjection_,playerPosition);
 
 	player_->SetMapChipField(mapChipField_);
 

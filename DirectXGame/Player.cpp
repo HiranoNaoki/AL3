@@ -1,191 +1,126 @@
 #define NOMINMAX
 #include "Player.h"
 #include <cassert>
-#include<numbers>
-#include<Input.h>
-#include<algorithm>
 #include <MapChipField.h>
-#include"MathUtilityForText.h"
 #include <DebugText.h>
 
-
-
-
-
-
-
-
-Player::Player(){};
-
-Player::~Player(){};
-
-void Player::Initialize(Model* model,uint32_t textureHandle,ViewProjection* viewProjection,const Vector3& position) {
-
+void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position) {
+	
 	assert(model);
-	model_ = model;
-	textureHndle_ = textureHandle;
-	viewprojection_ = viewProjection;
 
+	model_ = model;
+	
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.rotation_.y = std::numbers::pi_v<float>/2.0f;
-	model_ = Model::CreateFromOBJ("player",true);
+	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+	viewProjection_ = viewProjection;
 }
-
-
 void Player::Update() {
 	//1
-	//moov
-	if(onGround_){
-		
-	  if (Input::GetInstance()->PushKey(DIK_RIGHT) ||
-		Input::GetInstance()->PushKey(DIK_LEFT)) {
+	inputMove();
 
-
-		  if(turnTimer_ > 0.0f){
-		turnTimer_ -= 1.0f/60.0f;
-
-		float destinationRotationYTable[] = {
-			std::numbers::pi_v<float> / 2.0f,
-			std::numbers::pi_v<float>*3.0f/2.0f
-		};
-		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
-
-		worldTransform_.rotation_.y = EaseInOut(destinationRotationY,turnFirstRotationY_,turnTimer_ / kTimeTurn);
-	   }
-
-
-
-
-		Vector3 acceleration = {};
-		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-			
-			if (velocity_.x < 0.0f) {
-				velocity_.x *= (1.0f - kAttenuation);
-			}
-			acceleration.x += kAcceleration;
-			if (lrDirection_ != LRDirection::KRight) {
-				lrDirection_ = LRDirection::KRight;
-				turnFirstRotationY_ = worldTransform_.rotation_.y;
-				turnTimer_ =kTimeTurn;
-			}
-			
-		}
-		else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-			
-			if (velocity_.x > 0.0f) {
-				velocity_.x *= (1.0f - kAttenuation);
-			}
-
-			acceleration.x -= kAcceleration;
-			if (lrDirection_ != LRDirection::KLeft) {
-				lrDirection_ = LRDirection::KLeft;
-				turnFirstRotationY_ = worldTransform_.rotation_.y;
-				turnTimer_ = kTimeTurn;
-			}
-			
-		}
-		
-		velocity_.x += acceleration.x;
-
-		velocity_.x = std::clamp(velocity_.x,-kLimitRunSpeed,kLimitRunSpeed);
-	  }else {
-			velocity_.x *= (1.0f - kAttenuation);
-
-			
-		}
+	// 2
+	CollisionMapInfo collisionMapInfo = {};
 	
-	  if (Input::GetInstance()->PushKey(DIK_UP)) {
-		velocity_.y += kJumpAccleration;
-	      }
-	}else{
-		velocity_.y += -kGravityAcceleration;
-
-		velocity_.y = std::max(velocity_.y,-kLmitFallSpeed);
-
-		}
-
-
-
-
-	worldTransform_.translation_.x +=velocity_.x;
-	worldTransform_.translation_.y +=velocity_.y;
-
-	
-
-	//2
-	CollisionMapInfo collisionMapInfo;
-
 	collisionMapInfo.move = velocity_;
+	collisionMapInfo.landing = false;
+	collisionMapInfo.hitWall = false;
 
-	ChecMapColision(collisionMapInfo);
-
-	
-
-
+	// 2
+	ChecMapCollision(collisionMapInfo);
 
 	//3
 	CheckMapMove(collisionMapInfo);
+
 	//4
 	CheckMapCelling(collisionMapInfo);
+
 	//5
+	CheckMapHItWall(collisionMapInfo);
+	
 
 	//6
-
+	UpdateOnGround(collisionMapInfo);
+	
 	//7
-
-	//8
-
+	AnimateTurn();
 
 
-
-
-	
-
-	   bool landing = false;
-	if (velocity_.y < 0.0f) {
-		if (worldTransform_.translation_.y <= 1.0f) {
-			landing = true;
-		}
-	}
-
-
-	if(onGround_){
-
-	   if (velocity_.y > 0.0f) {
-			onGround_ = false;
-		}
-
-	
-
-	   
-	}else {
-		
-		if (landing) {
-			worldTransform_.translation_.y = 1.0f;
-			velocity_.x *= (1.0f - kAttenuation);
-			velocity_.y = 0.0f;
-			onGround_ = true;
-		}
-	}
-	
-	worldTransform_.TransferMatrix();
-
-	
-
-	
+	// 8
 	worldTransform_.UpdateMatrix();
+}
+
+void Player::Draw() { 
 	
-}
-void Player::Draw() {
-	model_->Draw(worldTransform_,*viewprojection_,textureHndle_);
+	model_->Draw(worldTransform_, *viewProjection_);
 }
 
+void Player::inputMove() {
+	
+	if (onGround_) {
+		
+		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
+
+			
+			Vector3 acceleration = {};
+			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+				
+				if (velocity_.x < 0.0f) {
+					
+					velocity_.x *= (1.0f - kAttenuation);
+				}
+
+				acceleration.x += kAcceleration / 60.0f;
+
+				if (lrDirection_ != LRDirection::kRight) {
+					lrDirection_ = LRDirection::kRight;
+				
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					
+					turnTimer_ = kTimeTurn;
+				}
+			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+				
+				if (velocity_.x > 0.0f) {
+					
+					velocity_.x *= (1.0f - kAttenuation);
+				}
+
+				acceleration.x -= kAcceleration / 60.0f;
+
+				if (lrDirection_ != LRDirection::kLeft) {
+					lrDirection_ = LRDirection::kLeft;
+				
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+				
+					turnTimer_ = kTimeTurn;
+				}
+			}
+			
+			velocity_ += acceleration;
+			
+			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+		} else {
+			
+			velocity_.x *= (1.0f - kAttenuation);
+		}
+		if (std::abs(velocity_.x) <= 0.0001f) {
+			velocity_.x = 0.0f;
+		}
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			
+			velocity_ += Vector3(0, kJumpAcceleration / 60.0f, 0);
+		}
+	} else {
+		
+		velocity_ += Vector3(0, -kGravityAccleration / 60.0f, 0);
+		
+		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+	}
+}
 
 
-
-
-void Player::ChecMapColision(CollisionMapInfo& info) { 
+void Player::ChecMapCollision(CollisionMapInfo& info) { 
 	ChecMapCollisionUp(info);
 	ChecMapCollisionDown(info);
 	ChecMapCollisionRight(info);
@@ -193,58 +128,61 @@ void Player::ChecMapColision(CollisionMapInfo& info) {
 }
 
 void Player::ChecMapCollisionUp(CollisionMapInfo& info) {
-	//
+	
+	if (info.move.y <= 0) {
+		return;
+	}
+
+	
 	std::array<Vector3, kNumCorner> positionNew;
 
 	for (uint32_t i = 0; i < positionNew.size(); ++i) {
 		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 	}
-	//
-	if (info.move.y <= 0) {
-		return;
-	}
-
+	
 	MapChipType mapChipType;
+	MapChipType mapChipTypeNext;
 
-	
 	bool hit = false;
-	
+
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	if (mapChipType == MapChipType::kBlock) {
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex + 1);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
 	
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	if (mapChipType == MapChipType::kBlock) {
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex + 1);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
+	
 	if (hit) {
+	
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
+		if (indexSetNow.yIndex != indexSet.yIndex) {
+			
+			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, +kHeight / 2.0f, 0));
 		
-
-		indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_+ Vector3(0, +kHeight / 2.0f, 0));
-		
-		
-		
-		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
-		
-		info.ceiling = true;
+			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+			info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
+			
+			info.ceiling = true;
+		}
 	}
 }
 
-
 void Player::ChecMapCollisionDown(CollisionMapInfo& info) {
-	// 
+	
 	if (info.move.y >= 0) {
 		return;
 	}
 
-	// 
+
 	std::array<Vector3, kNumCorner> positionNew;
 
 	for (uint32_t i = 0; i < positionNew.size(); ++i) {
@@ -253,9 +191,9 @@ void Player::ChecMapCollisionDown(CollisionMapInfo& info) {
 
 	MapChipType mapChipType;
 	MapChipType mapChipTypeNext;
-	// 
+	
 	bool hit = false;
-	// 
+
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -263,7 +201,7 @@ void Player::ChecMapCollisionDown(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
-	// 
+	
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex - 1);
@@ -271,13 +209,13 @@ void Player::ChecMapCollisionDown(CollisionMapInfo& info) {
 		hit = true;
 	}
 
-	// 
+	
 	if (hit) {
-		// 
+	
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, -kHeight / 2.0f, 0));
 		if (indexSetNow.yIndex != indexSet.yIndex) {
-			//
+	
 			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, -kHeight / 2.0f, 0));
 			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 			info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
@@ -286,9 +224,8 @@ void Player::ChecMapCollisionDown(CollisionMapInfo& info) {
 	}
 }
 
-
 void Player::ChecMapCollisionRight(CollisionMapInfo& info) { 
-	// 
+	
 	if (info.move.x <= 0) {
 		return;
 	}
@@ -301,9 +238,9 @@ void Player::ChecMapCollisionRight(CollisionMapInfo& info) {
 
 	MapChipType mapChipType;
 	MapChipType mapChipTypeNext;
-	// 
+	
 	bool hit = false;
-	// 
+	
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -311,7 +248,7 @@ void Player::ChecMapCollisionRight(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
-	// 
+	
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex - 1, indexSet.yIndex);
@@ -319,13 +256,13 @@ void Player::ChecMapCollisionRight(CollisionMapInfo& info) {
 		hit = true;
 	}
 
-	// 
+	
 	if (hit) {
-		// 
+	
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(+kWidth / 2.0f, 0, 0));
 		if (indexSetNow.xIndex != indexSet.xIndex) {
-			// 
+			
 			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(+kWidth / 2.0f, 0, 0));
 			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 			info.move.x = std::max(0.0f, rect.left - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
@@ -335,7 +272,7 @@ void Player::ChecMapCollisionRight(CollisionMapInfo& info) {
 }
 
 void Player::ChecMapCollisionLeft(CollisionMapInfo& info) {
-	// 
+
 	if (info.move.x >= 0) {
 		return;
 	}
@@ -349,7 +286,7 @@ void Player::ChecMapCollisionLeft(CollisionMapInfo& info) {
 	MapChipType mapChipType;
 	MapChipType mapChipTypeNext;
 	bool hit = false;
-	// 
+
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -357,7 +294,7 @@ void Player::ChecMapCollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
-	// 
+	
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex + 1, indexSet.yIndex);
@@ -365,13 +302,13 @@ void Player::ChecMapCollisionLeft(CollisionMapInfo& info) {
 		hit = true;
 	}
 
-	// 
+	
 	if (hit) {
-		// 
+		
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(-kWidth / 2.0f, 0, 0));
 		if (indexSetNow.xIndex != indexSet.xIndex) {
-			// 
+			
 			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(-kWidth / 2.0f, 0, 0));
 			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 			info.move.x = std::min(0.0f, rect.right - worldTransform_.translation_.x + (kWidth / 2.0f + kBlank));
@@ -380,50 +317,32 @@ void Player::ChecMapCollisionLeft(CollisionMapInfo& info) {
 	}
 }
 
-
-
 void Player::CheckMapMove(const CollisionMapInfo& info) {
-	//
+
 	worldTransform_.translation_ += info.move;
 }
 
-
 void Player::CheckMapCelling(const CollisionMapInfo& info) {
-	//
+
 	if (info.ceiling) {
 		DebugText::GetInstance()->ConsolePrintf("hit celing\n");
 		velocity_.y = 0;
 	}
-
-	
 }
 
 void Player::CheckMapHItWall(const CollisionMapInfo& info) {
-	// 
+	
 	if (info.hitWall) {
 		velocity_.x *= (1.0f - kAttenuationWall);
 	}
 }
 
-
-Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
-	
-	Vector3 offsetTable[kNumCorner] = {
-	    {+kWidth / 2.0f, -kHeight / 2.0f, 0}, //  kRightBottom
-	    {-kWidth / 2.0f, -kHeight / 2.0f, 0}, //  kLeftBottom
-	    {+kWidth / 2.0f, +kHeight / 2.0f, 0}, //  kRightTop
-	    {-kWidth / 2.0f, +kHeight / 2.0f, 0}  //  kLeftTop
-	};
-
-	return center + offsetTable[static_cast<uint32_t>(corner)];
-}
-
 void Player::UpdateOnGround(const CollisionMapInfo& info) {
-	//
+
 	if (onGround_) {
-		// 
+		
 		if (velocity_.y > 0.0f) {
-			// 
+		
 			onGround_ = false;
 		} else {
 			std::array<Vector3, kNumCorner> positionNew;
@@ -432,11 +351,11 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 				positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 			}
 
-			// 
+			
 			bool ground = false;
 
 			MapChipType mapChipType;
-			// 
+		
 			MapChipField::IndexSet indexSet;
 
 			indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftBottom] + Vector3(0, -kGroundSearchHeight, 0));
@@ -458,7 +377,7 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			}
 		}
 	} else {
-		// 
+		
 		if (info.landing) {
 			velocity_.x *= (1.0f - kAttenuationLanding);
 			velocity_.y = 0.0f;
@@ -469,5 +388,40 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 	}
 }
 
+void Player::AnimateTurn() {
+		
+	if (turnTimer_ > 0.0f) {
+		turnTimer_ = std::max(turnTimer_ - (1.0f / 60.0f), 0.0f);
+
+		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
+	
+		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
+		
+		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, turnTimer_ / kTimeTurn);
+	}
+}
+
+Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
+	/*if (corner == kRightBottom) {
+	            return center + {+kWidth / 2.0f, -kHeight / 2.0f, 0};
+	        }
+	        else if (corner == kLeftBottom) {
+	            return center + {-kWidth / 2.0f, -kHeight / 2.0f, 0};
+	        }
+	        else if (corner == kRightTop) {
+	            return center + {+kWidth / 2.0f, -kHeight / 2.0f, 0};
+	        }
+	        else {
+	            return center + {-kWidth / 2.0f, -kHeight / 2.0f, 0};
+	        }*/
+	Vector3 offsetTable[kNumCorner] = {
+	    {+kWidth / 2.0f, -kHeight / 2.0f, 0},
+	    {-kWidth / 2.0f, -kHeight / 2.0f, 0}, 
+	    {+kWidth / 2.0f, +kHeight / 2.0f, 0},
+	    {-kWidth / 2.0f, +kHeight / 2.0f, 0} 
+	};
+
+	    return center + offsetTable[static_cast<uint32_t>(corner)];
+    }
 
 
