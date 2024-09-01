@@ -15,7 +15,7 @@ worldTransform_.Initialize();
 
 	viewProjection_ = viewProjection;
 
-	velocity_ = {-kWalkSpeed, 0, 0};
+	velocity_ = {kWalkSpeed, 0, 0};
 
 	walkTimer_ = 0.0f;
 }
@@ -29,7 +29,7 @@ void Enemy::Update() {
 	
 	float param = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer_ / kWalkMotionTime);
 	float radian = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
-	worldTransform_.rotation_.x = radian;
+	worldTransform_.rotation_.x = -radian;
 
 	
 	worldTransform_.UpdateMatrix();

@@ -11,6 +11,8 @@ class MapChipField;
 
 class Enemy;
 
+class Goal;
+
 class Player{
 public:
 
@@ -52,11 +54,15 @@ public:
 
 	void OnCollision(const Enemy* enemy);
 
+	void OnCollision(const Goal* goal);
+
 	bool IsDead() const { return isDead_; }
+
+	bool IsGoal() const { return isGoal_;}
 
 	private:
 
-	static inline const float kAcceleration = 0.1f;
+	static inline const float kAcceleration = 0.5f;
 	static inline const float kAttenuation = 0.05f;
 
 	static inline const float kJumpAcceleration = 20.0f;
@@ -91,6 +97,8 @@ public:
 	Vector3 velocity_ = {};
 
 	bool isDead_ =false;
+
+	bool isGoal_ = false;
 
 	bool onGround_ = true;
 

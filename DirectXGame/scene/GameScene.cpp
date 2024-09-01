@@ -76,17 +76,17 @@ void GameScene::Initialize() {
 
 
 	//enemy_ = new Enemy();
-	for (int32_t i = 0; i < 2; ++i) {
+	for (int32_t i = 0; i < 20; ++i) {
 		modelEnemy_ = Model::CreateFromOBJ("enemy", true);
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(0, i);
 		newEnemy->Initialize(modelEnemy_, &viewProjection_, enemyPosition);
 
 		enemies_.push_back(newEnemy);
 	}
 
 
-	modelEnemy_ = Model::CreateFromOBJ("enemy",true);
+	
 
 	worldTransform_.Initialize();
 
@@ -94,9 +94,16 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1,18);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(6,18);
 	
-	Vector3 enemyfPosition = mapChipField_->GetMapChipPositionByIndex(15, 18);
+	
+	goal_ = new Goal();
+	modelGoal_ = Model::CreateFromOBJ("cube", true);
+	Vector3 goalPosition = mapChipField_->GetMapChipPositionByIndex(98, 18);
+
+	goal_->Initialize(modelGoal_, &viewProjection_, goalPosition);
+
+	goal_->SetMapChipField(mapChipField_);
 
   //  enemy_->Initialize(modelEnemy_, &viewProjection_, enemyfPosition);
 	//enemy_->SetMapChipField(mapChipField_);
@@ -149,6 +156,8 @@ switch (phase_) {
 
 
 	debugCamera_->Update();
+
+	goal_->Update();
 	player_->Update();
 
 	cameracontroller_->Update();
@@ -197,6 +206,8 @@ switch (phase_) {
 
 	CheckAllCollisions();
 
+	CheckGoalCollisions();
+
 	break;
 
 case Phase::kDeath:
@@ -229,11 +240,12 @@ case Phase::kDeath:
 	if (Input::GetInstance()->PushKey(DIK_RETURN)) {
 			finished_ = true;
 		}
-
-	break;
-	}
 	
-
+	break;
+	
+case Phase::kGoal:
+	finished_ = true;
+	}
 }
 
 void GameScene::Draw() {
@@ -280,6 +292,8 @@ void GameScene::Draw() {
 		enemy->Draw();
 	}
 
+	goal_->Draw();
+
 	 if (deathParticles_) {
 		deathParticles_->Draw();
 	}
@@ -323,6 +337,27 @@ void GameScene::CheckAllCollisions() {
 	}
 }
 
+void GameScene::CheckGoalCollisions() {
+
+	// 判定対象1と2の座標
+	AABB aabb1, aabb2;
+
+	// 自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	// 自キャラと敵弾すべての当たり判定
+	// 敵弾の座標
+	aabb2 = goal_->GetAABB();
+
+	// AABB同士の交差判定
+	if (IsCollision(aabb1, aabb2)) {
+		// 自キャラの衝突時コールバックを呼び起こす
+		player_->OnCollision(goal_);
+		// ゴール時
+		goal_->OnCollision(player_);
+	}
+}
+
 void GameScene::ChangePhase() {
 	switch (phase_) {
 	case Phase::kPlay:
@@ -349,5 +384,7 @@ void GameScene::ChangePhase() {
 		}
 
 		break;
+	case Phase::kGoal:
+		finished_ = true;
 	}
 }

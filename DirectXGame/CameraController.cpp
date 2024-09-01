@@ -13,9 +13,14 @@ void CameraController::Update(){
 
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 
+
+
 	cameraTarget.x = targetWorldTransform.translation_.x + targetOffset_.x + targetVelocity.x* kVelocityBias;
-	cameraTarget.y = targetWorldTransform.translation_.y + targetOffset_.y + targetVelocity.y*kVelocityBias;
-	cameraTarget.z = targetWorldTransform.translation_.z + targetOffset_.z + targetVelocity.z*kVelocityBias;
+	cameraTarget.y = targetWorldTransform.translation_.y + targetOffset_.y + targetVelocity.y* kVelocityBias;
+	cameraTarget.z = targetWorldTransform.translation_.z + targetOffset_.z + targetVelocity.z* kVelocityBias;
+
+
+
 
 	viewProjection_.translation_.x = Lerp(viewProjection_.translation_.x,cameraTarget.x,kInterpolationRate);
 	viewProjection_.translation_.y = Lerp(viewProjection_.translation_.y,cameraTarget.y,kInterpolationRate);

@@ -23,6 +23,7 @@ void Player::Update() {
 	CollisionMapInfo collisionMapInfo = {};
 	
 	collisionMapInfo.move = velocity_;
+
 	collisionMapInfo.landing = false;
 	collisionMapInfo.hitWall = false;
 
@@ -451,5 +452,12 @@ void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
 	isDead_ = true;
 	}
+
+void Player::OnCollision(const Goal* goal) {
+	(void)goal;
+
+	isGoal_ = true;
+
+}
 
 

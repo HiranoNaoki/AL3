@@ -13,6 +13,7 @@
 #include "CameraController.h"
 #include "Enemy.h"
 #include "DeathParticles.h"
+#include "Goal.h"
 
 
 
@@ -57,6 +58,8 @@ public: // メンバ関数
 
 	void CheckAllCollisions();
 
+	void CheckGoalCollisions();
+
 std::vector<std::vector<WorldTransform*>>  worldTransformBlocks_;
 
 bool IsFinished() const { return finished_; }
@@ -76,6 +79,7 @@ private: // メンバ変数
 	Model* modelBlock_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticles = nullptr;
+	Model* modelGoal_ = nullptr;
 
 	WorldTransform worldTransform_;
 	
@@ -85,7 +89,7 @@ private: // メンバ変数
 
 	MapChipField* mapChipField_;
 
-
+	Goal* goal_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
 
@@ -103,6 +107,7 @@ private: // メンバ変数
 	enum class Phase {
 		kPlay,  
 		kDeath, 
+		kGoal,
 	};
 
 	Phase phase_;
