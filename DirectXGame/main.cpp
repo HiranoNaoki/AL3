@@ -10,6 +10,7 @@
 
 GameScene* gameScene = nullptr;
 TitleScene* titleScene = nullptr;
+Sprite* sprite_= nullptr;
 
 // シーン（型）
 enum class Scene {
@@ -136,6 +137,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 void ChangeScene() {
 	switch (scene) {
 	case Scene::kTitle:
+		
 		if (titleScene->IsFinished()) {
 			// シーン変更
 			scene = Scene::kGame;
@@ -145,6 +147,7 @@ void ChangeScene() {
 			// 新しいシーンの生成と初期化
 			gameScene = new GameScene;
 			gameScene->Initialize();
+			
 		}
 		break;
 	case Scene::kGame:

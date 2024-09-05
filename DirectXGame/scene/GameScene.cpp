@@ -37,6 +37,7 @@ GameScene::~GameScene() {
 	delete model_;
 	delete player_;
 	delete mapChipField_;
+	delete sprite_;
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			delete worldTransformBlock;
@@ -65,7 +66,7 @@ void GameScene::Initialize() {
 
 	textureHndle_ = TextureManager::Load("./Resources/player.png");
 
-
+	textureHndle_over = TextureManager::Load("./Resources/over.png");
 
 	model_ = Model::CreateFromOBJ("player",true);
 	modelBlock_ = Model::CreateFromOBJ("block", true);
@@ -73,6 +74,7 @@ void GameScene::Initialize() {
 
 	phase_ = Phase::kPlay;
 
+	sprite_ = Sprite::Create(textureHndle_over,{100,50});
 
 
 	//enemy_ = new Enemy();
@@ -300,14 +302,26 @@ void GameScene::Draw() {
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
-
+	
 #pragma region 前景スプライト描画
 	// 前景スプライト描画前処理
 	Sprite::PreDraw(commandList);
 
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
+	switch (phase_) {
+	
+	case Phase::kDeath:
+
+		
+		sprite_->Draw();
+
+		break;
+	}
+	
+
 	/// </summary>
+
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -375,6 +389,11 @@ void GameScene::ChangePhase() {
 			deathParticles_ = new DeathParticles;
 			deathParticles_->Initialize(modelDeathParticles, &viewProjection_, deathParticlesPosition);
 		}
+
+		if (player_->IsGoal()) {
+			phase_ = Phase::kGoal;
+		}
+
 
 		break;
 	case Phase::kDeath:

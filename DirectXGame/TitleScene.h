@@ -3,6 +3,9 @@
 #include "Model.h"
 #include"ViewProjection.h"
 #include"WorldTransform.h"
+#include"GameScene.h"
+
+
 
 
 class TitleScene {
@@ -25,7 +28,15 @@ private:
 	WorldTransform worldTransformTitle_;
 	WorldTransform worldTransformPlayer_;
 
+	uint32_t r=0;
+
 	Model* model_ = nullptr;
+
+	Sprite* sprite_ =nullptr;
+
+	Model* model_u =nullptr;
+
+	Model* model_n =nullptr;
 
 	float counter_ = 0.0f;
 	

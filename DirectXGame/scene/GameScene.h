@@ -66,7 +66,7 @@ bool IsFinished() const { return finished_; }
 
 private: // メンバ変数
 
-
+	Sprite* sprite_ = nullptr;
 
 
 	DirectXCommon* dxCommon_ = nullptr;
@@ -74,6 +74,8 @@ private: // メンバ変数
 	Audio* audio_ = nullptr;
 
 	uint32_t textureHndle_ =0;
+
+	uint32_t textureHndle_over =0;
 
 	Model* model_ = nullptr;
 	Model* modelBlock_ = nullptr;

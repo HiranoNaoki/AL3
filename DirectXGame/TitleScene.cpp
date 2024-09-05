@@ -3,15 +3,24 @@
 #include<cmath>
 #include<numbers>
 #include"DirectXCommon.h"
+#include "TextureManager.h"
 
 
-TitleScene::~TitleScene() { delete model_; }
+TitleScene::~TitleScene() { delete model_; delete sprite_;}
 
 void TitleScene::Initialize() {
+
+	r = TextureManager::Load("./Resources/run.png");
 	model_ = Model::CreateFromOBJ("player");
 	
+	sprite_ = Sprite::Create(r,{100,0});
+
+
+
 	viewProjection_.Initialize();
 	finished_ = false;
+
+	
 
 	const float kPlayerScale = 10.0f;
 	worldTransformPlayer_.Initialize();
@@ -48,7 +57,16 @@ void TitleScene::Draw() {
 	
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
+
+	
+
 	Model::PreDraw(commandList);
 	model_->Draw(worldTransformPlayer_, viewProjection_);
+
+	
 	Model::PostDraw();
+
+	Sprite::PreDraw(commandList);
+	sprite_->Draw();
+	Sprite::PostDraw();
 }
