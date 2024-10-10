@@ -146,7 +146,7 @@ switch (phase_) {
 	}
 #endif  DEBUG
 
-
+	time+=1;
 
 	debugCamera_->Update();
 	player_->Update();

@@ -108,4 +108,6 @@ private: // メンバ変数
 	Phase phase_;
 
 	bool finished_ = false;
+
+	float time =0;
 };
